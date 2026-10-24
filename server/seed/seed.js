@@ -62,21 +62,26 @@ const seedData = async () => {
 
     const records = [];
 
-    // Create 12 months of historical data for 2025-2026
+    // Create 12 months of historical data for 2025
     for (let month = 1; month <= 12; month++) {
       const year = 2025;
 
       buildings.forEach((building) => {
-        // Base values per building
-        let baseElec = building === 'Science & Technology Block' ? 14000 : 9500;
-        let baseWater = building === 'Student Hostel Complex' ? 55000 : 32000;
+        // Updated campus-wide monthly values distributed across 4 buildings
+        let baseElec = building === 'Science & Technology Block'
+          ? 2061731 / 4
+          : 2061731 / 4;
 
-        // Introduce seasonal variation
+        let baseWater = building === 'Student Hostel Complex'
+          ? 20000 / 4
+          : 20000 / 4;
+
+        // Introduce seasonal variation (existing logic retained)
         const seasonalFactor = 1 + Math.sin((month / 12) * Math.PI * 2) * 0.15;
 
         // Anomaly: Spike Science Block electricity in month 12
         if (month === 12 && building === 'Science & Technology Block') {
-          baseElec = 21500; // 50%+ surge
+          baseElec = 21500; // Existing anomaly retained
         }
 
         // Electricity
@@ -90,7 +95,9 @@ const seedData = async () => {
             consumption: Math.round(baseElec * seasonalFactor),
             cost: Math.round(baseElec * seasonalFactor * 0.14)
           },
-          notes: month === 12 && building === 'Science & Technology Block' ? 'High lab equipment usage alert recorded.' : 'Normal operational baseline.',
+          notes: month === 12 && building === 'Science & Technology Block'
+            ? 'High lab equipment usage alert recorded.'
+            : 'Normal operational baseline.',
           recordedBy: staffUser._id
         });
 
@@ -108,7 +115,7 @@ const seedData = async () => {
           recordedBy: staffUser._id
         });
 
-        // Waste (monthly campus wide or building specific)
+        // Waste (existing logic retained)
         records.push({
           category: 'Waste',
           year,
@@ -125,7 +132,7 @@ const seedData = async () => {
           recordedBy: staffUser._id
         });
 
-        // Paper
+        // Paper: 780 kg monthly across all 4 buildings
         records.push({
           category: 'Paper',
           year,
@@ -133,15 +140,15 @@ const seedData = async () => {
           building,
           department: 'Academic Printing',
           metrics: {
-            consumption: Math.round(150 + Math.random() * 50)
+            consumption: 780 / 4
           },
-          notes: 'Digital submission policy active.',
+          notes: 'Digital submission policy active. Paper consumption recorded in kg.',
           recordedBy: staffUser._id
         });
       });
     }
 
-    // Add GreenSpace & Cleanliness entries
+    // Add GreenSpace & Cleanliness entries (unchanged)
     records.push({
       category: 'GreenSpace',
       year: 2025,
@@ -184,10 +191,10 @@ const seedData = async () => {
         category: 'Electricity',
         parameter: 'Consumption (kWh)',
         severity: 'CRITICAL',
-        message: 'Science & Technology Block electricity consumption spiked by +52% compared to historical average.',
+        message: 'Science & Technology Block electricity consumption spiked during December.',
         status: 'ACTIVE',
         triggeredValue: 21500,
-        thresholdValue: 14000,
+        thresholdValue: Math.round(2061731 / 4),
         building: 'Science & Technology Block'
       },
       {
@@ -195,26 +202,26 @@ const seedData = async () => {
         category: 'Water',
         parameter: 'Usage (Liters)',
         severity: 'WARNING',
-        message: 'Student Hostel Complex water usage exceeded normal seasonal limit by 18%.',
+        message: 'Student Hostel Complex water consumption is monitored against the updated monthly campus baseline.',
         status: 'ACTIVE',
-        triggeredValue: 64800,
-        thresholdValue: 55000,
+        triggeredValue: 20000 / 4,
+        thresholdValue: 20000 / 4,
         building: 'Student Hostel Complex'
       },
       {
         title: 'Paper Reduction Target Achieved',
         category: 'Paper',
-        parameter: 'Paper Reams',
+        parameter: 'Paper Consumption (kg)',
         severity: 'INFO',
-        message: 'Campus-wide paper consumption dropped 12% following online exam system rollout.',
+        message: 'Campus-wide paper consumption is recorded at 780 kg per month.',
         status: 'ACKNOWLEDGED',
-        triggeredValue: 135,
-        thresholdValue: 160,
+        triggeredValue: 195,
+        thresholdValue: 780 / 4,
         building: 'Administration Building'
       }
     ]);
 
-    // Seed Initial Recommendations
+    // Seed Initial Recommendations (unchanged)
     console.log('[Seed] Seeding initial AI recommendations...');
     await Recommendation.create([
       {
@@ -260,7 +267,7 @@ const seedData = async () => {
     console.log('Demo Credentials created:');
     console.log('  Admin:       admin@greencampus.com       / Password123!');
     console.log('  Coordinator: coordinator@greencampus.com / Password123!');
-    console.log('  Staff:       staff@greencampus.com       / Password123!');
+    console.log('  Staff:       staff@greencampus.com      / Password123!');
     console.log('  Viewer:      viewer@greencampus.com      / Password123!');
     console.log('----------------------------------------------------');
 
